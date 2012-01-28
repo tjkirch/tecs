@@ -1,0 +1,12 @@
+*.out
+*.output
+*.tst
+*.cmp
+*.vm
+*.hack
+*.xml
+*.jpg
+*.gif
+*.htm
+*.txt
+tags
