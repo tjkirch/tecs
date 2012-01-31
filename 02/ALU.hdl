@@ -45,5 +45,34 @@ CHIP ALU {
         ng; // 1 if (out<0),  0 otherwise
 
     PARTS:
-    // Put your code here.
+    // Prepare 16-bit zero and one values for later
+    Not16(in=x, out=notx);
+    And16(a=x, b=notx, out=zero);
+    Or16(a=x, b=notx, out=ones);
+
+    // Prepare zx, nx, zy, ny in succession
+    Mux16(a=x, b=zero, sel=zx, out=xzx);
+    Mux16(a=y, b=zero, sel=zy, out=yzy);
+    Not16(in=xzx, out=notxzx);
+    Not16(in=yzy, out=notyzy);
+    Mux16(a=xzx, b=notxzx, sel=nx, out=xnx); // Prepared x value
+    Mux16(a=yzy, b=notyzy, sel=ny, out=yny); // Prepared y value
+
+    // Factor in 'f' bit
+    And16(a=xnx, b=yny, out=andxy);
+    Add16(a=xnx, b=yny, out=plusxy);
+    Mux16(a=andxy, b=plusxy, sel=f, out=fxy);
+
+    // Factor in 'no' bit, and save useful bits of output including ng
+    Not16(in=fxy, out=notfxy);
+    Mux16(a=fxy, b=notfxy, sel=no, out=output, out[15]=ng, out[0..7]=out8, out[8..15]=out16);
+
+    // Prepare zr from output
+    Or8Way(in=out8, out=or8);
+    Or8Way(in=out16, out=or16);
+    Or(a=or8, b=or16, out=or);
+    Not(in=or, out=zr);
+
+    // Prepare output
+    And16(a=output, b=output, out=out);
 }
